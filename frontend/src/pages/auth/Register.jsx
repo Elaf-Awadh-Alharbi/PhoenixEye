@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
-
-const API_BASE = "http://localhost:5000";
+import API from "../../api";
 
 export default function RegisterPage() {
   const { login } = useAuth();
@@ -13,7 +12,7 @@ export default function RegisterPage() {
     email: "",
     password: "",
     confirmPassword: "",
-    role: "citizen", 
+    role: "citizen",
   });
 
   const [loading, setLoading] = useState(false);
@@ -35,7 +34,7 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const res = await fetch(`${API_BASE}/api/auth/register`, {
+      const res = await fetch(`${API}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
