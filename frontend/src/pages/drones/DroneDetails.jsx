@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-
-const API_BASE = "http://localhost:5000";
+import API from "../../api";
 
 const STATUS_LABELS = {
   available: "Available",
@@ -23,7 +22,7 @@ export default function DroneDetailsPage() {
         setLoading(true);
         setError("");
 
-        const res = await fetch(`${API_BASE}/api/drones/${id}`);
+        const res = await fetch(`${API}/api/drones/${id}`);
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
           throw new Error(data.error || "Failed to load drone");
