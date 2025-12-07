@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
-
-const API_BASE = "http://localhost:5000";
+import API from "../../api";
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -26,7 +25,7 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const res = await fetch(`${API_BASE}/api/auth/login`, {
+      const res = await fetch(`${API}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -40,10 +39,10 @@ export default function LoginPage() {
 
       const data = await res.json();
 
-      
+      // login user in context
       login(data.user);
 
-      
+      // redirect based on role
       if (data.user?.role === "citizen") {
         navigate("/submit-report");
       } else if (data.user?.role === "admin") {
@@ -149,4 +148,5 @@ export default function LoginPage() {
     </div>
   );
 }
+
 
