@@ -1,7 +1,7 @@
 
 
 
-const API = import.meta.env.VITE_API_URL || "https://phoenixeye-backend.onrender.com";
+const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 
 export { API };
