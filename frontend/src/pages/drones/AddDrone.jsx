@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-
-const API_BASE = "http://localhost:5000";
+import API from "../../api";
 
 export default function AddDronePage() {
   const navigate = useNavigate();
@@ -44,7 +43,7 @@ export default function AddDronePage() {
     setLoading(true);
 
     try {
-      const res = await fetch(`${API_BASE}/api/drones`, {
+      const res = await fetch(`${API}/api/drones`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -203,3 +202,4 @@ export default function AddDronePage() {
     </div>
   );
 }
+
