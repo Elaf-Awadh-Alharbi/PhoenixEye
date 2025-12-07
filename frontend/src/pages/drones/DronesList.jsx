@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { NavLink, Link } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
+import API from "../../api";
 
 const navItems = [
   { to: "/dashboard", label: "Dashboard" },
@@ -57,14 +58,13 @@ export default function DronesList() {
       .slice(0, 2)
       .toUpperCase() || "PE";
 
-  
   useEffect(() => {
     async function fetchDrones() {
       try {
         setLoading(true);
         setError(null);
 
-        const res = await fetch("http://localhost:5000/api/drones");
+        const res = await fetch(`${API}/api/drones`);
         if (!res.ok) throw new Error("Failed to load drones");
 
         const data = await res.json();
@@ -79,7 +79,6 @@ export default function DronesList() {
     fetchDrones();
   }, []);
 
-  
   const handleStatusChange = async (droneId, newStatus) => {
     const mode =
       newStatus === "available"
@@ -90,7 +89,7 @@ export default function DronesList() {
 
     try {
       setUpdatingId(droneId);
-      const res = await fetch(`http://localhost:5000/api/drones/${droneId}`, {
+      const res = await fetch(`${API}/api/drones/${droneId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus, mode }),
@@ -341,4 +340,3 @@ export default function DronesList() {
     </div>
   );
 }
-
