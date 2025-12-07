@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, NavLink, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
+import API from "../../api";
 
 const navItems = [
   { to: "/dashboard", label: "Dashboard" },
@@ -38,7 +39,7 @@ export default function ReportDetails() {
       try {
         setLoading(true);
         setError("");
-        const res = await fetch(`http://localhost:5000/api/reports/${id}`);
+        const res = await fetch(`${API}/api/reports/${id}`);
         if (!res.ok) throw new Error("Failed to load report");
         const data = await res.json();
         setReport(data);
@@ -221,7 +222,7 @@ export default function ReportDetails() {
                     onClick={async () => {
                       try {
                         const res = await fetch(
-                          `http://localhost:5000/api/reports/${report.id}`,
+                          `${API}/api/reports/${report.id}`,
                           {
                             method: "PUT",
                             headers: { "Content-Type": "application/json" },
