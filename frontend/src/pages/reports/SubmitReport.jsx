@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
-import MapSelector from "../../components/MapSelector"; 
+import MapSelector from "../../components/MapSelector";
+import API from "../../api"; 
 
-const API_BASE = "http://localhost/phoenixeye"; 
+const API_BASE = API; 
 
 export default function SubmitReportPage() {
   const navigate = useNavigate();
@@ -17,7 +18,7 @@ export default function SubmitReportPage() {
     longitude: "",
   });
 
-  const [coords, setCoords] = useState(null); 
+  const [coords, setCoords] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -33,7 +34,7 @@ export default function SubmitReportPage() {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
 
-    
+   
     if (name === "latitude" || name === "longitude") {
       setCoords((prev) => ({
         lat:
@@ -210,7 +211,6 @@ export default function SubmitReportPage() {
                   Location on map (optional)
                 </label>
                 <div className="rounded-2xl overflow-hidden border border-white/10 bg-[#050816]/60">
-                  {}
                   <MapSelector onLocationSelect={handleMapSelect} />
                 </div>
                 <p className="text-[0.7rem] text-slate-500">

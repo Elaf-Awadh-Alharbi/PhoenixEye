@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { NavLink, Link } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
-import { API } from "../../api"; // ✅ added
+import { API } from "../../api"; 
 
 const navItems = [
   { to: "/dashboard", label: "Dashboard" },
@@ -50,7 +50,7 @@ export default function ReportsList() {
       try {
         setLoading(true);
         setError("");
-        const res = await fetch(`${API}/api/reports`); // ✅ changed to use API
+        const res = await fetch(`${API}/api/reports`); 
         if (!res.ok) throw new Error("Failed to load reports");
         const data = await res.json();
         setReports(data);
