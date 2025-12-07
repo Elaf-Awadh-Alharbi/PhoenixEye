@@ -14,6 +14,7 @@ import {
   YAxis,
   CartesianGrid,
 } from "recharts";
+import API from "../../api";
 
 const navItems = [
   { to: "/dashboard", label: "Dashboard" },
@@ -48,8 +49,8 @@ export default function AnalyticsDashboard() {
         setError(null);
 
         const [repRes, drRes] = await Promise.all([
-          fetch("http://localhost:5000/api/reports"),
-          fetch("http://localhost:5000/api/drones"),
+          fetch(`${API}/api/reports`),
+          fetch(`${API}/api/drones`),
         ]);
 
         if (!repRes.ok) throw new Error("Failed to load reports");
@@ -70,7 +71,6 @@ export default function AnalyticsDashboard() {
     fetchData();
   }, []);
 
-  
   const totalReports = reports.length;
   const completedReports = reports.filter((r) => r.status === "completed")
     .length;
@@ -90,21 +90,18 @@ export default function AnalyticsDashboard() {
     (d) => d.status === "maintenance"
   ).length;
 
-  
   const reportStatusData = [
     { name: "Pending", value: pendingReports },
     { name: "Assigned", value: assignedReports },
     { name: "Completed", value: completedReports },
   ].filter((d) => d.value > 0);
 
- 
   const droneStatusData = [
     { name: "Available", value: availableDrones },
     { name: "On Mission", value: busyDrones },
     { name: "Maintenance", value: maintenanceDrones },
   ].filter((d) => d.value > 0);
 
-  
   const reportsVsDronesData = [
     { name: "Reports", value: totalReports },
     { name: "Drones", value: totalDrones },
