@@ -1,0 +1,142 @@
+[
+  {
+    "id": 1764500772113,
+    "fullName": "Admin User",
+    "email": "admin@phoenix.com",
+    "password": "123456",
+    "role": "admin"
+  },
+  {
+    "id": 1764506023781,
+    "fullName": "elaf alharbi",
+    "email": "elafutureit@gmail.com",
+    "password": "123456",
+    "role": "admin"
+  },
+  {
+    "id": 1764507300767,
+    "fullName": "Hadeel",
+    "email": "Hadeel2@PhonixEye.com",
+    "password": "123456",
+    "role": "citizen"
+  },
+  {
+    "id": 1764521990728,
+    "fullName": "Fay",
+    "email": "Fay5@Phoniex.com",
+    "password": "123456",
+    "role": "citizen"
+  },
+  {
+    "id": 1764581608503,
+    "fullName": "sara",
+    "email": "sara0@phoniex.com",
+    "password": "123456",
+    "role": "admin"
+  },
+  {
+    "id": 1764590283857,
+    "fullName": "elaf1",
+    "email": "elaf2@ee.com",
+    "password": "123456",
+    "role": "admin"
+  },
+  {
+    "id": 1764596643232,
+    "fullName": "Ahlam",
+    "email": "Ahlam2@phoniex.com",
+    "password": "123456",
+    "role": "admin"
+  },
+  {
+    "id": 1764596721850,
+    "fullName": "Sultan",
+    "email": "Sultan2@phoniex.com",
+    "password": "123456",
+    "role": "citizen"
+  },
+  {
+    "id": 1764608609877,
+    "fullName": "rahaf",
+    "email": "Rahaf@gmai.com",
+    "password": "123456",
+    "role": "citizen"
+  },
+  {
+    "id": 1764608865615,
+    "fullName": "solaf",
+    "email": "solaf4@phoniex.com",
+    "password": "123456",
+    "role": "citizen"
+  },
+  {
+    "id": 1764608923161,
+    "fullName": "Hanan",
+    "email": "loofe@gmail.com",
+    "password": "123456",
+    "role": "admin"
+  },
+  {
+    "id": 1764615031252,
+    "fullName": "rania",
+    "email": "rania@gmail.com",
+    "password": "123456",
+    "role": "citizen"
+  },
+  {
+    "id": 1764622133646,
+    "fullName": "amal",
+    "email": "amal2@gmail.com",
+    "password": "123456",
+    "role": "admin"
+  },
+  {
+    "id": 1764622554587,
+    "fullName": "abdualrahman",
+    "email": "abdul22@gmail.com",
+    "password": "123456",
+    "role": "citizen"
+  },
+  {
+    "id": 1764630349924,
+    "fullName": "ahlam",
+    "email": "Ahlam222@phoniex.com",
+    "password": "123456",
+    "role": "admin"
+  },
+  {
+    "id": 1764657792307,
+    "fullName": "alaa",
+    "email": "alaa2@gmail.com",
+    "password": "123456",
+    "role": "citizen"
+  },
+  {
+    "id": 1764665673071,
+    "fullName": "abdullrahman",
+    "email": "aa@gmail.com",
+    "password": "123",
+    "role": "citizen"
+  },
+  {
+    "id": 1764665735625,
+    "fullName": "kkkk",
+    "email": "llll@gmail.com",
+    "password": "123",
+    "role": "admin"
+  },
+  {
+    "id": 1764667106038,
+    "fullName": "totah",
+    "email": "totah@gmail.com",
+    "password": "1234",
+    "role": "admin"
+  },
+  {
+    "id": 1764672187205,
+    "fullName": "sara1",
+    "email": "sara33@gmail.com",
+    "password": "123456",
+    "role": "admin"
+  }
+]

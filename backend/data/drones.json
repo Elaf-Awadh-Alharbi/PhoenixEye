@@ -1,0 +1,144 @@
+[
+  {
+    "id": 1,
+    "name": "Drone A1",
+    "status": "available",
+    "battery": 92,
+    "mode": "idle",
+    "location": "Riyadh - Depot A",
+    "lastReportId": 1764597993802
+  },
+  {
+    "id": 2,
+    "name": "Drone B3",
+    "status": "available",
+    "battery": 67,
+    "mode": "idle",
+    "location": "Riyadh - Highway 10",
+    "lastReportId": 1764597445368
+  },
+  {
+    "id": 3,
+    "name": "Drone C7",
+    "status": "busy",
+    "battery": 80,
+    "mode": "on-mission",
+    "location": "Riyadh - Depot B",
+    "lastReportId": 1764597445368
+  },
+  {
+    "id": 1764600681884,
+    "name": "Drone 0E",
+    "status": "busy",
+    "battery": 100,
+    "mode": "on-mission",
+    "location": "Al-Jubail"
+  },
+  {
+    "id": 1764601292313,
+    "name": "Drone E6",
+    "status": "busy",
+    "battery": 100,
+    "mode": "on-mission",
+    "location": "Jeddah",
+    "lastReportId": 1764597445368
+  },
+  {
+    "id": 1764607626190,
+    "name": "Drone 0H",
+    "status": "busy",
+    "battery": 100,
+    "mode": "on-mission",
+    "location": "Makkah",
+    "lastReportId": 1764597445368
+  },
+  {
+    "id": 1764615961892,
+    "name": "Drone B0",
+    "status": "busy",
+    "battery": 100,
+    "mode": "on-mission",
+    "location": "al-madinah",
+    "lastReportId": 1764597993802
+  },
+  {
+    "id": 1764622709669,
+    "name": "Drone 110",
+    "status": "busy",
+    "battery": 100,
+    "mode": "on-mission",
+    "location": "Riyadh",
+    "lastReportId": 1764597993802
+  },
+  {
+    "id": 1764623108195,
+    "name": "Drone 60",
+    "status": "busy",
+    "battery": 100,
+    "mode": "on-mission",
+    "location": "Dammam",
+    "lastReportId": 1764598056547
+  },
+  {
+    "id": 1764623626162,
+    "name": "Drone 2",
+    "status": "busy",
+    "battery": 100,
+    "mode": "on-mission",
+    "location": "jeddah",
+    "lastReportId": 1764597445368
+  },
+  {
+    "id": 1764629675945,
+    "name": "Drone 50",
+    "status": "busy",
+    "battery": 100,
+    "mode": "on-mission",
+    "location": "Jeddah"
+  },
+  {
+    "id": 1764629866581,
+    "name": "Drone 1",
+    "status": "busy",
+    "battery": 100,
+    "mode": "on-mission",
+    "location": "Dammam",
+    "lastReportId": 1764597993802
+  },
+  {
+    "id": 1764630048537,
+    "name": "Drone 03",
+    "status": "busy",
+    "battery": 100,
+    "mode": "on-mission",
+    "location": "Al-madinah",
+    "lastReportId": 1764597993802
+  },
+  {
+    "id": 1764657981648,
+    "name": "Drone S0",
+    "status": "busy",
+    "battery": 100,
+    "mode": "on-mission",
+    "location": "Al-Jubail",
+    "lastReportId": 1764597560795
+  },
+  {
+    "id": 1764660341925,
+    "name": "Drone BB",
+    "status": "busy",
+    "battery": 88,
+    "mode": "on-mission",
+    "location": "Dammam",
+    "lastReportId": 1764597445368
+  },
+  {
+    "id": 1764664095186,
+    "name": "Drone 00",
+    "status": "busy",
+    "battery": 100,
+    "mode": "on-mission",
+    "location": "al-madinah",
+    "lastReportId": 1764628334369
+  }
+]

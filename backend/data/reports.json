@@ -1,0 +1,108 @@
+[
+  {
+    "id": 1764700011123,
+    "title": "Dead dog on service lane",
+    "description": "Medium-size dead dog on Riyadh Northern Service Road, right shoulder.",
+    "status": "assigned",
+    "location": "Riyadh Northern Service Road, near Exit 10.",
+    "assignedDroneId": 1764622079669,
+    "assignedDroneName": "Drone 110",
+    "eta": "12 min"
+  },
+
+  {
+    "id": 1764700012244,
+    "title": "Dead cat near coastal road",
+    "description": "Observed a dead cat lying near Jeddah coastal walkway, northbound.",
+    "status": "completed",
+    "location": "Jeddah Coastal Walkway, Zone 3",
+    "assignedDroneId": 1764623626162,
+    "assignedDroneName": "Drone 2"
+  },
+
+  {
+    "id": 1764700013301,
+    "title": "Dead camel on desert road",
+    "description": "Large dead camel blocking half of the lane on Desert Road 65.",
+    "status": "assigned",
+    "location": "Desert Road 65, km 48",
+    "assignedDroneId": 1764601292313,
+    "assignedDroneName": "Drone E6",
+    "eta": "20 min"
+  },
+
+  {
+    "id": 1764700014499,
+    "title": "Dead fox near farmland",
+    "description": "Farmer reported a fox found dead near irrigation line.",
+    "status": "pending",
+    "location": "Al-Kharj Farmland Road, Sector 4",
+    "assignedDroneId": null,
+    "assignedDroneName": null
+  },
+
+  {
+    "id": 1764700015510,
+    "title": "Animal remains on highway",
+    "description": "Unidentified animal remains found on Highway 40, causing debris scatter.",
+    "status": "assigned",
+    "location": "Highway 40, before Exit 22",
+    "assignedDroneId": 1764629981012,
+    "assignedDroneName": "Drone Z9"
+  },
+
+  {
+    "id": 1764700016622,
+    "title": "Dead bird in parking area",
+    "description": "Small dead bird in mall parking area, near entrance C.",
+    "status": "completed",
+    "location": "Riyadh Mall Parking - Gate C",
+    "assignedDroneId": 1764600681884,
+    "assignedDroneName": "Drone 0E"
+  },
+
+  {
+    "id": 1764700017799,
+    "title": "Dead goat beside rural trail",
+    "description": "A goat found dead next to rural walking trail.",
+    "status": "assigned",
+    "location": "Rural Trail 18, near old farm checkpoint",
+    "assignedDroneId": 1764642986681,
+    "assignedDroneName": "Drone 1"
+  },
+
+  {
+    "id": 1764700018888,
+    "title": "Dead cat near city bridge",
+    "description": "Dead cat located under the south side of the city bridge.",
+    "status": "completed",
+    "location": "Dammam City Bridge, South Support Zone",
+    "assignedDroneId": 1764660341925,
+    "assignedDroneName": "Drone BB"
+  },
+
+  {
+    "id": 1764700019900,
+    "title": "Large dead animal on mountain road",
+    "description": "Large unidentified animal found near steep curve on mountain road.",
+    "status": "assigned",
+    "location": "Mountain Road 21, Curve 5",
+    "assignedDroneId": 17646015391892,
+    "assignedDroneName": "Drone B0"
+  },
+
+  {
+    "id": 1764700020044,
+    "title": "Dead dog near warehouse district",
+    "description": "Dead medium-size dog found near warehouse loading dock.",
+    "status": "assigned",
+    "location": "Riyadh Warehouse District, Dock 7",
+    "assignedDroneId": 17646430048537,
+    "assignedDroneName": "Drone 03",
+    "eta": "9 min"
+  }
+]
+
+
+
+
