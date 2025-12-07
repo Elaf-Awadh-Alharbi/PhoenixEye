@@ -99,7 +99,7 @@ export default function SubmitReportPage() {
 
   return (
     <div className="min-h-screen bg-[#050816] text-slate-50">
-      {/* Header */}
+      {}
       <header className="px-8 pt-6">
         <div className="max-w-3xl mx-auto">
           <div className="rounded-3xl bg-[#050816]/90 border border-white/10 px-6 py-3 flex items-center justify-between shadow-[0_18px_60px_rgba(15,23,42,0.9)] backdrop-blur-xl">
@@ -126,10 +126,10 @@ export default function SubmitReportPage() {
         </div>
       </header>
 
-      {/* Main */}
+      {}
       <main className="px-8 pb-10">
         <div className="max-w-3xl mx-auto pt-8 space-y-6">
-          {/* Intro */}
+          {}
           <section className="space-y-2">
             <p className="text-[0.7rem] tracking-[0.25em] uppercase text-slate-400">
               Submit report
@@ -150,10 +150,10 @@ export default function SubmitReportPage() {
             </div>
           )}
 
-          {/* Form */}
+          {}
           <section className="bg-white/5 border border-white/10 rounded-2xl p-6 shadow-[0_18px_45px_rgba(15,23,42,0.9)]">
             <form className="space-y-5" onSubmit={handleSubmit}>
-              {/* Title */}
+              {}
               <div>
                 <label className="block text-xs font-medium text-slate-200 mb-1.5">
                   Title
@@ -169,7 +169,7 @@ export default function SubmitReportPage() {
                 />
               </div>
 
-              {/* Description */}
+              {}
               <div>
                 <label className="block text-xs font-medium text-slate-200 mb-1.5">
                   Description
@@ -185,7 +185,7 @@ export default function SubmitReportPage() {
                 />
               </div>
 
-              {/* Location text */}
+              {}
               <div>
                 <label className="block text-xs font-medium text-slate-200 mb-1.5">
                   Location (text)
@@ -205,7 +205,7 @@ export default function SubmitReportPage() {
                 </p>
               </div>
 
-              {/* Map */}
+              {}
               <div className="pt-2 space-y-2">
                 <label className="block text-xs font-medium text-slate-200">
                   Location on map (optional)
@@ -221,7 +221,7 @@ export default function SubmitReportPage() {
                 </p>
               </div>
 
-              {/* Lat / Lng */}
+              {}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-slate-200 mb-1.5">

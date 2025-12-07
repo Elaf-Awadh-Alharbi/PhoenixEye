@@ -1,7 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 
-// ✅ استخدم نفس الـ API من env
+
 const API = import.meta.env.VITE_API_URL;
 
 const navItems = [
@@ -29,11 +29,11 @@ export default function AdminProfileManagement() {
 
   return (
     <div className="min-h-screen bg-[#050816] text-slate-50">
-      {/* Header */}
+      {}
       <header className="px-8 pt-6">
         <div className="max-w-6xl mx-auto">
           <div className="rounded-3xl bg-[#050816]/90 border border-white/10 px-6 py-3 flex items-center justify-between shadow-[0_18px_60px_rgba(15,23,42,0.9)] backdrop-blur-xl">
-            {/* Brand + Avatar */}
+            {}
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400 via-cyan-400 to-sky-500 flex items-center justify-center text-xs font-bold text-slate-900 shadow-[0_0_25px_rgba(16,185,129,0.7)]">
                 {initials}
@@ -43,7 +43,7 @@ export default function AdminProfileManagement() {
               </span>
             </div>
 
-            {/* Nav */}
+            {}
             <nav className="hidden md:flex items-center gap-2 text-xs">
               {navItems.map((item) => (
                 <NavLink
@@ -63,7 +63,7 @@ export default function AdminProfileManagement() {
               ))}
             </nav>
 
-            {/* User info */}
+            {}
             <div className="flex items-center gap-2 text-xs">
               <span className="hidden sm:inline text-slate-400">
                 Logged in as
@@ -76,19 +76,19 @@ export default function AdminProfileManagement() {
         </div>
       </header>
 
-      {/* Main */}
+      {}
       <main className="px-8 pb-10">
         <div className="max-w-xl mx-auto pt-10">
           <section className="relative rounded-3xl bg-white/5 border border-emerald-400/40 px-8 py-7 shadow-[0_22px_70px_rgba(15,23,42,0.95)] backdrop-blur-2xl">
-            {/* Glow border */}
+            {}
             <div className="pointer-events-none absolute -inset-px rounded-[1.5rem] border border-emerald-400/40 opacity-60" />
 
-            {/* Title */}
+            {}
             <h1 className="relative text-xl font-semibold mb-4 text-slate-50">
               Admin profile &amp; settings
             </h1>
 
-            {/* Info */}
+            {}
             <div className="relative space-y-2 text-sm">
               <p>
                 <span className="font-semibold text-slate-200">
@@ -110,11 +110,11 @@ export default function AdminProfileManagement() {
 
             <hr className="my-5 border-slate-700/70" />
 
-            {/* Options */}
+            {}
             <div className="relative space-y-3 text-sm">
               <p className="text-xs text-slate-400 mb-1">Profile options</p>
 
-              {/* Edit name/email */}
+              {}
               <div className="flex items-center justify-between gap-3 rounded-2xl bg-white/5 border border-white/10 px-4 py-3">
                 <div>
                   <p className="font-medium text-slate-50 text-sm">
@@ -132,7 +132,7 @@ export default function AdminProfileManagement() {
                 </button>
               </div>
 
-              {/* Change password */}
+              {}
               <div className="flex items-center justify-between gap-3 rounded-2xl bg-white/5 border border-white/10 px-4 py-3">
                 <div>
                   <p className="font-medium text-slate-50 text-sm">
@@ -150,7 +150,7 @@ export default function AdminProfileManagement() {
                 </button>
               </div>
 
-              {/* Notifications */}
+              {}
               <div className="flex items-center justify-between gap-3 rounded-2xl bg-white/5 border border-white/10 px-4 py-3">
                 <div>
                   <p className="font-medium text-slate-50 text-sm">

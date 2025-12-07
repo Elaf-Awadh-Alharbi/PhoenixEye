@@ -2,7 +2,8 @@ import { useEffect, useState, useMemo } from "react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 
-const API_BASE = "http://localhost:5000";
+
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 const navItems = [
   { to: "/dashboard", label: "Dashboard" },
@@ -50,7 +51,7 @@ export default function UsersList() {
         const res = await fetch(`${API_BASE}/api/users`);
         if (!res.ok) throw new Error("Failed to load users");
         const data = await res.json();
-        setUsers(data.users || data); 
+        setUsers(data.users || data);
       } catch (err) {
         setError(err.message || "Error loading users");
       } finally {
