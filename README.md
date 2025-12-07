@@ -54,7 +54,7 @@ PhoenixEye/
 
 ## 💡 Quick Start
 
-### Backend (Node.js)<img width="1024" height="1024" alt="ChatGPT Image Dec 7, 2025, 04_18_43 PM" src="https://github.com/user-attachments/assets/07e21a17-cca7-4513-a8d1-1ee4e26da531" />
+### Backend (Node.js)
 
 bash
 cd backend
