@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-
-const API_BASE = "http://localhost:5000";
+import API from "../../api";
 
 export default function AssignDronePage() {
   const { reportId } = useParams();
@@ -14,7 +13,6 @@ export default function AssignDronePage() {
   const [assigning, setAssigning] = useState(false);
   const [error, setError] = useState("");
 
-  
   useEffect(() => {
     async function load() {
       try {
@@ -22,8 +20,8 @@ export default function AssignDronePage() {
         setError("");
 
         const [reportRes, dronesRes] = await Promise.all([
-          fetch(`${API_BASE}/api/reports/${reportId}`),
-          fetch(`${API_BASE}/api/drones`),
+          fetch(`${API}/api/reports/${reportId}`),
+          fetch(`${API}/api/drones`),
         ]);
 
         if (!reportRes.ok) {
@@ -66,37 +64,30 @@ export default function AssignDronePage() {
     setError("");
 
     try {
-    
-      const reportRes = await fetch(
-        `${API_BASE}/api/reports/${report.id}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            status: "assigned",
-            assignedDroneId: drone.id,
-            assignedDroneName: drone.name,
-          }),
-        }
-      );
+      const reportRes = await fetch(`${API}/api/reports/${report.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          status: "assigned",
+          assignedDroneId: drone.id,
+          assignedDroneName: drone.name,
+        }),
+      });
 
       if (!reportRes.ok) {
         const data = await reportRes.json().catch(() => ({}));
         throw new Error(data.error || "Failed to update report");
       }
 
-      const droneRes = await fetch(
-        `${API_BASE}/api/drones/${drone.id}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            status: "busy",
-            mode: "on-mission",
-            lastReportId: report.id,
-          }),
-        }
-      );
+      const droneRes = await fetch(`${API}/api/drones/${drone.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          status: "busy",
+          mode: "on-mission",
+          lastReportId: report.id,
+        }),
+      });
 
       if (!droneRes.ok) {
         const data = await droneRes.json().catch(() => ({}));
@@ -322,6 +313,4 @@ export default function AssignDronePage() {
     </div>
   );
 }
-
-
 
