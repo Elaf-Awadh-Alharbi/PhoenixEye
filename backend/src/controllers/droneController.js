@@ -1,0 +1,114 @@
+const Drone = require("../models/Drone");
+const jwt = require("jsonwebtoken");
+
+
+exports.testDrone = async (req, res) => {
+  try {
+    const drones = await Drone.findAll();
+    res.json(drones);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Drone model not working" });
+  }
+};
+
+//POST http://localhost:5000/api/drones/register
+exports.registerDrone = async (req, res) => {
+  try {
+    const { name } = req.body;
+
+    if (!name) {
+      return res.status(400).json({ error: "Drone name is required" });
+    }
+
+    // إنشاء الدرون
+    const drone = await Drone.create({
+      name,
+      status: "AVAILABLE",
+    });
+
+    // إنشاء توكن خاص بالدرون
+    const token = jwt.sign(
+      { drone_id: drone.id, type: "drone" },
+      process.env.DRONE_JWT_SECRET,
+      { expiresIn: process.env.DRONE_TOKEN_EXPIRES }
+    );
+
+    res.status(201).json({
+      message: "Drone registered successfully",
+      drone_id: drone.id,
+      token,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error registering drone" });
+  }
+};
+
+exports.droneHeartbeat = async (req, res) => {
+  try {
+    const droneId = req.drone.drone_id;
+    const { latitude, longitude, battery, status } = req.body;
+
+    const drone = await Drone.findByPk(droneId);
+    if (!drone) return res.status(404).json({ error: "Drone not found" });
+
+    drone.last_latitude = latitude;
+    drone.last_longitude = longitude;
+    drone.battery = battery;
+
+    // الحالات المسموح للدرون يغيرها بنفسه
+    const allowedStatuses = ["AVAILABLE", "IN_MISSION", "MAINTENANCE"];
+    if (status && allowedStatuses.includes(status)) {
+      drone.status = status;
+    }
+
+    drone.last_seen_at = new Date();
+    drone.is_online = true;
+
+    await drone.save();
+
+    res.json({ message: "Heartbeat received", drone });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Heartbeat failed" });
+  }
+};
+
+exports.getLiveDrones = async (req, res) => {
+  try {
+    const drones = await Drone.findAll({
+      attributes: [
+        "id",
+        "name",
+        "status",
+        "battery",
+        "is_online",
+        "last_latitude",
+        "last_longitude",
+        "last_seen_at"
+      ]
+    });
+
+    const formatted = drones.map(drone => ({
+      ...drone.toJSON(),
+      is_critical: drone.battery !== null && drone.battery < 20
+    }));
+
+    res.json({
+      total: drones.length,
+      online: drones.filter(d => d.is_online).length,
+      offline: drones.filter(d => !d.is_online).length,
+      drones: formatted
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to fetch live drones" });
+  }
+};
+
+
+
+
+
