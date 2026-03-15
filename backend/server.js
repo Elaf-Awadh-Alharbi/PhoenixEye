@@ -19,7 +19,12 @@ const fs = require("fs");
 const uploadsPath = path.join(__dirname, "uploads", "reports");
 
 // Middlewares
-app.use(helmet());
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  })
+);
+
 app.use(cors());
 app.use(express.json());
 app.use(morgan("dev"));

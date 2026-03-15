@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../../api/axios";
+import { getImageUrl } from "../../utils/imageUrl";
 
 export default function ReportsList() {
   const [reports, setReports] = useState([]);
@@ -20,6 +21,7 @@ export default function ReportsList() {
   const fetchReports = async () => {
     try {
       setLoading(true);
+      setError(null);
 
       const res = await api.get("/admin/reports", {
         params: {
@@ -68,6 +70,7 @@ export default function ReportsList() {
           <option value="">All Status</option>
           <option value="PENDING">Pending</option>
           <option value="VERIFIED">Verified</option>
+          <option value="ASSIGNED">Assigned</option>
           <option value="REMOVED">Removed</option>
         </select>
 
@@ -126,8 +129,8 @@ export default function ReportsList() {
                   <td className="p-4">
                     {report.image_url ? (
                       <img
-                        src={report.image_url}
-                        alt=""
+                        src={getImageUrl(report.image_url)}
+                        alt="Report"
                         className="w-16 h-16 object-cover rounded"
                       />
                     ) : (
@@ -135,21 +138,24 @@ export default function ReportsList() {
                     )}
                   </td>
 
-                  <td className="p-4">
-                    {report.source}
-                  </td>
+                  <td className="p-4">{report.source}</td>
 
                   <td className="p-4">
                     <StatusBadge status={report.status} />
                   </td>
 
                   <td className="p-4">
-                    {report.latitude.toFixed(3)},{" "}
-                    {report.longitude.toFixed(3)}
+                    {Number(report.latitude).toFixed(3)},{" "}
+                    {Number(report.longitude).toFixed(3)}
                   </td>
 
                   <td className="p-4">
-                    {new Date(report.created_at).toLocaleDateString()}
+                    {(() => {
+                      const dateStr = report.createdAt || report.created_at;
+                      return dateStr
+                        ? new Date(dateStr).toLocaleDateString()
+                        : "—";
+                    })()}
                   </td>
 
                   <td className="p-4 space-x-2">
@@ -219,14 +225,17 @@ function StatusBadge({ status }) {
   const colors = {
     PENDING: "bg-yellow-500",
     VERIFIED: "bg-green-500",
+    ASSIGNED: "bg-blue-500",
     REMOVED: "bg-red-500",
   };
 
+  const cls = colors[status] || "bg-gray-500";
+
   return (
     <span
-      className={`px-3 py-1 text-xs rounded-full text-black ${colors[status]}`}
+      className={`px-3 py-1 text-xs rounded-full text-black ${cls}`}
     >
       {status}
     </span>
   );
-}
+};

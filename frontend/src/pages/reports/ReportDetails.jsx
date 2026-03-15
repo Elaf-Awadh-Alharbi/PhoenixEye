@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import api from "../../api/axios";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
+import { getImageUrl } from "../../utils/imageUrl";
 
 // Fix Leaflet marker icons (Vite)
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
@@ -25,6 +26,8 @@ export default function ReportDetails() {
   const [selectedDrone, setSelectedDrone] = useState("");
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiResult, setAiResult] = useState(null);
   const [error, setError] = useState(null);
 
   const fetchReport = async () => {
@@ -52,8 +55,6 @@ export default function ReportDetails() {
 
       setReport(r);
       setAssignableDrones(drones);
-
-      // لو عنده drone_id مسبقًا، نعرضه (وما نختاره تلقائيًا في select)
       setSelectedDrone("");
     } catch (err) {
       setError(err?.response?.data?.error || "Failed to load report");
@@ -98,6 +99,20 @@ export default function ReportDetails() {
     }
   };
 
+  const analyzeWithAI = async () => {
+    try {
+      setAiLoading(true);
+      setAiResult(null);
+
+      const res = await api.post(`/admin/reports/${id}/ai-detect`);
+      setAiResult(res.data.result);
+    } catch (err) {
+      alert(err?.response?.data?.error || "AI analysis failed");
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
   if (loading) return <p className="text-white">Loading...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
   if (!report) return null;
@@ -119,7 +134,7 @@ export default function ReportDetails() {
         <div className="bg-[#11141c] p-4 rounded-xl">
           {report.image_url ? (
             <img
-              src={report.image_url}
+              src={getImageUrl(report.image_url)}
               alt="Report"
               className="w-full rounded-xl"
             />
@@ -153,7 +168,6 @@ export default function ReportDetails() {
             {report.drone_id ? report.drone_id : "Not assigned"}
           </p>
 
-          {/* Actions for PENDING */}
           {canVerifyOrRemove && (
             <div className="space-x-4 mt-4">
               <button
@@ -174,7 +188,6 @@ export default function ReportDetails() {
             </div>
           )}
 
-          {/* ✅ Assign section (PENDING أو VERIFIED) */}
           {canAssign && (
             <div className="mt-4 space-y-2">
               <p className="text-sm text-gray-300">
@@ -205,13 +218,6 @@ export default function ReportDetails() {
                   onClick={assignToDrone}
                   className="bg-[#4ade80] px-4 py-2 rounded text-black font-semibold"
                   disabled={!assignableDrones.length || !selectedDrone || actionLoading}
-                  title={
-                    !assignableDrones.length
-                      ? "No available online drones"
-                      : !selectedDrone
-                      ? "Choose a drone first"
-                      : "Assign"
-                  }
                 >
                   Assign
                 </button>
@@ -222,10 +228,52 @@ export default function ReportDetails() {
               </p>
             </div>
           )}
+
+          <div className="mt-4">
+            <button
+              onClick={analyzeWithAI}
+              className="bg-blue-500 px-4 py-2 rounded text-white font-semibold"
+              disabled={aiLoading}
+            >
+              {aiLoading ? "Analyzing..." : "Analyze with AI"}
+            </button>
+          </div>
+
+          {aiResult && (
+            <div className="mt-4 p-4 rounded bg-[#1a1f2b] space-y-2">
+              <h3 className="text-lg font-semibold text-[#4ade80]">
+                AI Detection Result
+              </h3>
+
+              <p>
+                <strong>Dead Animal:</strong>{" "}
+                {aiResult.is_dead_animal ? "Yes" : "No"}
+              </p>
+
+              <p>
+                <strong>Animal Detected:</strong>{" "}
+                {aiResult.animal_detected ? "Yes" : "No"}
+              </p>
+
+              <p>
+                <strong>Confidence:</strong>{" "}
+                {typeof aiResult.confidence === "number"
+                  ? `${Math.round(aiResult.confidence * 100)}%`
+                  : "—"}
+              </p>
+
+              <p>
+                <strong>Label:</strong> {aiResult.label || "—"}
+              </p>
+
+              <p>
+                <strong>Explanation:</strong> {aiResult.explanation || "—"}
+              </p>
+            </div>
+          )}
         </div>
       </div>
-
-      {/* Map Section */}
+      
       <div className="mt-10 bg-[#11141c] p-4 rounded-xl">
         <h3 className="text-lg font-semibold mb-4 text-[#4ade80]">
           Location Map
@@ -264,5 +312,4 @@ function StatusBadge({ status }) {
       {status}
     </span>
   );
-}
-
+};

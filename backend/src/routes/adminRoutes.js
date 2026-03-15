@@ -22,7 +22,7 @@ const {
 } = require("../controllers/adminDroneController");
 
 const { verifyToken } = require("../middleware/authMiddleware");
-
+const { analyzeReportWithGemini } = require("../controllers/geminiController");
 
 const router = express.Router();
 
@@ -35,6 +35,7 @@ router.get("/analytics", verifyToken, getAnalytics);
 router.get("/analytics/timeseries", verifyToken, getReportsTimeSeries);
 router.get("/analytics/heatmap", verifyToken, getHeatmapData);
 router.get("/reports/:id", verifyToken, getReportDetails);
+router.post("/reports/:id/ai-detect", verifyToken, analyzeReportWithGemini);
 
 // Drone management routes
 router.get("/drones", verifyToken, getAllDrones);
