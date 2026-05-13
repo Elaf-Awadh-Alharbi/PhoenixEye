@@ -1,9 +1,19 @@
-import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'report_screen.dart';
+import 'package:http/http.dart' as http;
 
+import 'home_screen.dart';
+import 'verify_email_screen.dart';
+import 'forgot_password_screen.dart';
+
+// Displays registration and login forms for citizen access to the mobile app.
 class RegistrationScreen extends StatefulWidget {
-  const RegistrationScreen({super.key});
+  final bool startInLoginMode;
+
+  const RegistrationScreen({
+    super.key,
+    this.startInLoginMode = false,
+  });
 
   @override
   State<RegistrationScreen> createState() => _RegistrationScreenState();
@@ -12,306 +22,315 @@ class RegistrationScreen extends StatefulWidget {
 class _RegistrationScreenState extends State<RegistrationScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  final _firstName = TextEditingController();
-  final _lastName = TextEditingController();
-  final _phone = TextEditingController();
-  final _otp = TextEditingController();
-  final _password = TextEditingController();
+  final TextEditingController _firstNameCtrl = TextEditingController();
+  final TextEditingController _lastNameCtrl = TextEditingController();
+  final TextEditingController _emailCtrl = TextEditingController();
+  final TextEditingController _passwordCtrl = TextEditingController();
 
-  bool _isSendingCode = false;
-  bool _codeSent = false;
+  bool _obscurePassword = true;
+  bool _isLoading = false;
+  late bool _isLogin;
 
-  bool _isVerifyingCode = false;
-  bool _codeVerified = false;
+  static const String baseUrl = 'http://10.0.2.2:5001';
 
-  bool _isCreatingAccount = false;
+  @override
+  void initState() {
+    super.initState();
+    _isLogin = widget.startInLoginMode;
+  }
 
   @override
   void dispose() {
-    _firstName.dispose();
-    _lastName.dispose();
-    _phone.dispose();
-    _otp.dispose();
-    _password.dispose();
+    _firstNameCtrl.dispose();
+    _lastNameCtrl.dispose();
+    _emailCtrl.dispose();
+    _passwordCtrl.dispose();
     super.dispose();
   }
 
-  String? _required(String? v, String label) {
-    if (v == null || v.trim().isEmpty) return '$label is required';
-    return null;
-  }
-
-  String? _validatePhone(String? v) {
-    if (v == null || v.trim().isEmpty) return 'Phone number is required';
-    final cleaned = v.replaceAll(RegExp(r'[^0-9+]'), '');
-    if (cleaned.length < 9) return 'Enter a valid phone number';
-    return null;
-  }
-
-  String? _validatePassword(String? v) {
-    if (v == null || v.isEmpty) return 'Password is required';
-    if (v.length < 8) return 'Password must be at least 8 characters';
-    return null;
-  }
-
-  void _toast(String msg) {
+  void _showSnack(String msg) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(msg)),
+    );
   }
 
-  // --- PLACEHOLDER (we will connect to backend later) ---
-  Future<void> _sendOtp() async {
+  // Sends registration data to the backend and opens email verification on success.
+  Future<void> _handleRegister() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isSendingCode = true);
+    setState(() => _isLoading = true);
+
     try {
-      await Future<void>.delayed(const Duration(seconds: 1));
-      setState(() {
-        _codeSent = true;
-        _codeVerified = false;
-      });
-      _toast('Verification code sent.');
-    } catch (_) {
-      _toast('Failed to send code.');
-    } finally {
-      if (mounted) setState(() => _isSendingCode = false);
-    }
-  }
-
-  Future<void> _verifyOtp() async {
-    if (!_codeSent) {
-      _toast('Send the code first.');
-      return;
-    }
-    if (_otp.text.trim().isEmpty) {
-      _toast('Enter the verification code.');
-      return;
-    }
-
-    setState(() => _isVerifyingCode = true);
-    try {
-      await Future<void>.delayed(const Duration(seconds: 1));
-      setState(() => _codeVerified = true);
-      _toast('Phone verified ✅');
-    } catch (_) {
-      _toast('Invalid code.');
-    } finally {
-      if (mounted) setState(() => _isVerifyingCode = false);
-    }
-  }
-
-  Future<void> _createAccount() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    if (!_codeVerified) {
-      _toast('Verify your phone first.');
-      return;
-    }
-
-    setState(() => _isCreatingAccount = true);
-    try {
-      await Future<void>.delayed(const Duration(seconds: 1));
-      _toast('Account created successfully!');
-
-
-      if (!mounted) return;
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const ReportScreen()),
+      final response = await http.post(
+        Uri.parse('$baseUrl/register'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'first_name': _firstNameCtrl.text.trim(),
+          'last_name': _lastNameCtrl.text.trim(),
+          'email': _emailCtrl.text.trim(),
+          'password': _passwordCtrl.text.trim(),
+        }),
       );
-    } catch (_) {
-      _toast('Registration failed.');
+
+      if (response.statusCode == 201) {
+        if (!mounted) return;
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => VerifyEmailScreen(email: _emailCtrl.text.trim()),
+          ),
+        );
+      } else {
+        String message = 'Registration failed';
+        try {
+          final data = jsonDecode(response.body);
+          if (data is Map && data['error'] != null) {
+            message = data['error'].toString();
+          }
+        } catch (_) {}
+        _showSnack(message);
+      }
+    } catch (e) {
+      _showSnack('Could not connect to backend.');
     } finally {
-      if (mounted) setState(() => _isCreatingAccount = false);
+      if (mounted) setState(() => _isLoading = false);
     }
   }
-  // ------------------------------------------------------
+
+  // Sends login credentials to the backend and opens the citizen home screen on success.
+  Future<void> _handleLogin() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isLoading = true);
+
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/login'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'email': _emailCtrl.text.trim(),
+          'password': _passwordCtrl.text.trim(),
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final userId = data['user']['id'];
+
+        if (!mounted) return;
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => HomeScreen(userId: userId),
+          ),
+        );
+      } else {
+        String message = 'Login failed';
+        try {
+          final data = jsonDecode(response.body);
+          if (data is Map && data['error'] != null) {
+            message = data['error'].toString();
+          }
+        } catch (_) {}
+        _showSnack(message);
+      }
+    } catch (e) {
+      _showSnack('Could not connect to backend.');
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
     return Scaffold(
       body: Stack(
         children: [
-          // Background
           Positioned.fill(
             child: Image.asset(
               'assets/images/bg.png',
               fit: BoxFit.cover,
             ),
           ),
-
-          // Dark overlay for readability
           Positioned.fill(
             child: Container(color: Colors.black.withOpacity(0.65)),
           ),
-
           SafeArea(
             child: Center(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 420),
+                  constraints: const BoxConstraints(maxWidth: 520),
                   child: Container(
-                    padding: const EdgeInsets.all(18),
+                    padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
                       color: const Color(0xFF071A2B).withOpacity(0.92),
                       borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: const Color(0xFF1D4ED8).withOpacity(0.35)),
-                      boxShadow: [
-                        BoxShadow(
-                          blurRadius: 18,
-                          spreadRadius: 2,
-                          color: Colors.black.withOpacity(0.25),
-                        ),
-                      ],
+                      border: Border.all(
+                        color: const Color(0xFF1D4ED8).withOpacity(0.35),
+                      ),
                     ),
                     child: Form(
                       key: _formKey,
                       child: Column(
-                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Image.asset(
-                            'assets/images/logo.jpeg',
-                            width: 92,
-                            height: 92,
-                            fit: BoxFit.contain,
+                          Icon(
+                            _isLogin ? Icons.login : Icons.person_add_alt_1,
+                            size: 58,
+                            color: const Color(0xFF60A5FA),
                           ),
-                          const SizedBox(height: 10),
-                          const Text(
-                            'Create Account',
-                            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
-                          ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 12),
                           Text(
-                            'PhoenixEye Citizen App',
-                            style: TextStyle(color: cs.onSurfaceVariant),
-                          ),
-                          const SizedBox(height: 16),
-
-                          Row(
-                            children: [
-                              Expanded(
-                                child: TextFormField(
-                                  controller: _firstName,
-                                  textInputAction: TextInputAction.next,
-                                  decoration: const InputDecoration(labelText: 'First name'),
-                                  validator: (v) => _required(v, 'First name'),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: TextFormField(
-                                  controller: _lastName,
-                                  textInputAction: TextInputAction.next,
-                                  decoration: const InputDecoration(labelText: 'Last name'),
-                                  validator: (v) => _required(v, 'Last name'),
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          const SizedBox(height: 12),
-
-                          TextFormField(
-                            controller: _phone,
-                            keyboardType: TextInputType.phone,
-                            textInputAction: TextInputAction.next,
-                            decoration: const InputDecoration(
-                              labelText: 'Phone number',
-                              hintText: '05xxxxxxxx or +9665xxxxxxxx',
-                              prefixIcon: Icon(Icons.phone),
-                            ),
-                            validator: _validatePhone,
-                          ),
-
-                          const SizedBox(height: 12),
-
-                          SizedBox(
-                            width: double.infinity,
-                            child: FilledButton.icon(
-                              onPressed: _isSendingCode ? null : _sendOtp,
-                              icon: _isSendingCode
-                                  ? const SizedBox(
-                                width: 18,
-                                height: 18,
-                                child: CircularProgressIndicator(strokeWidth: 2),
-                              )
-                                  : const Icon(Icons.sms),
-                              label: Text(_codeSent ? 'Resend Code' : 'Send Code'),
+                            _isLogin ? 'Welcome Back' : 'Create Account',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w800,
                             ),
                           ),
+                          const SizedBox(height: 24),
 
-                          const SizedBox(height: 12),
-
-                          Row(
-                            children: [
-                              Expanded(
-                                child: TextField(
-                                  controller: _otp,
-                                  keyboardType: TextInputType.number,
-                                  decoration: InputDecoration(
-                                    labelText: 'Verification code',
-                                    prefixIcon: const Icon(Icons.verified),
-                                    suffixIcon: _codeVerified
-                                        ? const Icon(Icons.check_circle, color: Colors.green)
+                          if (!_isLogin) ...[
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: TextFormField(
+                                    controller: _firstNameCtrl,
+                                    decoration: const InputDecoration(
+                                      labelText: 'First Name',
+                                      prefixIcon: Icon(Icons.badge_outlined),
+                                    ),
+                                    validator: (value) =>
+                                    value == null || value.trim().isEmpty
+                                        ? 'Required'
                                         : null,
                                   ),
                                 ),
-                              ),
-                              const SizedBox(width: 12),
-                              ElevatedButton(
-                                onPressed: (_isVerifyingCode || !_codeSent) ? null : _verifyOtp,
-                                child: _isVerifyingCode
-                                    ? const SizedBox(
-                                  width: 18,
-                                  height: 18,
-                                  child: CircularProgressIndicator(strokeWidth: 2),
-                                )
-                                    : const Text('Verify'),
-                              ),
-                            ],
-                          ),
-
-                          const SizedBox(height: 12),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: TextFormField(
+                                    controller: _lastNameCtrl,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Last Name',
+                                      prefixIcon: Icon(Icons.badge_outlined),
+                                    ),
+                                    validator: (value) =>
+                                    value == null || value.trim().isEmpty
+                                        ? 'Required'
+                                        : null,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 14),
+                          ],
 
                           TextFormField(
-                            controller: _password,
-                            obscureText: true,
+                            controller: _emailCtrl,
+                            keyboardType: TextInputType.emailAddress,
                             decoration: const InputDecoration(
+                              labelText: 'Email',
+                              prefixIcon: Icon(Icons.email_outlined),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'Please enter your email';
+                              }
+                              if (!value.contains('@')) {
+                                return 'Enter a valid email';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 14),
+
+                          TextFormField(
+                            controller: _passwordCtrl,
+                            obscureText: _obscurePassword,
+                            decoration: InputDecoration(
                               labelText: 'Password',
-                              prefixIcon: Icon(Icons.lock),
+                              prefixIcon: const Icon(Icons.lock_outline),
+                              suffixIcon: IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _obscurePassword = !_obscurePassword;
+                                  });
+                                },
+                                icon: Icon(
+                                  _obscurePassword
+                                      ? Icons.visibility_off
+                                      : Icons.visibility,
+                                ),
+                              ),
                             ),
-                            validator: _validatePassword,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your password';
+                              }
+                              if (value.length < 6) {
+                                return 'Password must be at least 6 characters';
+                              }
+                              return null;
+                            },
                           ),
 
-                          const SizedBox(height: 16),
+                          if (_isLogin)
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: TextButton(
+                                onPressed: _isLoading
+                                    ? null
+                                    : () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) =>
+                                      const ForgotPasswordScreen(),
+                                    ),
+                                  );
+                                },
+                                child: const Text('Forgot Password?'),
+                              ),
+                            ),
 
-                          SizedBox(
-                            width: double.infinity,
-                            child: FilledButton(
-                              onPressed: _isCreatingAccount ? null : _createAccount,
-                              child: _isCreatingAccount
+                          const SizedBox(height: 22),
+
+                          FilledButton(
+                            onPressed: _isLoading
+                                ? null
+                                : (_isLogin ? _handleLogin : _handleRegister),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              child: _isLoading
                                   ? const SizedBox(
-                                width: 18,
-                                height: 18,
-                                child: CircularProgressIndicator(strokeWidth: 2),
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
                               )
-                                  : const Text('Create Account'),
+                                  : Text(_isLogin ? 'Login' : 'Sign Up'),
                             ),
                           ),
 
-                          const SizedBox(height: 10),
+                          const SizedBox(height: 8),
 
-                          Text(
-                            _codeVerified
-                                ? 'Phone verified ✅ You can create your account.'
-                                : 'Verify your phone number to complete registration.',
-                            style: TextStyle(
-                              color: _codeVerified ? Colors.green : cs.onSurfaceVariant,
+                          TextButton(
+                            onPressed: _isLoading
+                                ? null
+                                : () {
+                              setState(() {
+                                _isLogin = !_isLogin;
+                              });
+                            },
+                            child: Text(
+                              _isLogin
+                                  ? 'Don’t have an account? Sign Up'
+                                  : 'Already have an account? Login',
                             ),
-                            textAlign: TextAlign.center,
                           ),
                         ],
                       ),

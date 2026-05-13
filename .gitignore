@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Miscellaneous
 *.class
 *.log
@@ -41,3 +42,22 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+=======
+# Node modules
+node_modules/
+
+# Environment variables
+.env
+.env.*
+
+# Uploads
+uploads/
+
+# Logs
+logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+>>>>>>> f08d574d1ea5c1d564fa7d91f6a7280feaa6abad

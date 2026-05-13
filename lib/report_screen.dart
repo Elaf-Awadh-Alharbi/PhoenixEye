@@ -2,12 +2,18 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
-
+import 'api_service.dart';
 import 'thank_you_screen.dart';
 import 'location_picker_screen.dart';
 
+// Collects report details, photo evidence, and location data for a citizen submission.
 class ReportScreen extends StatefulWidget {
-  const ReportScreen({super.key});
+  final String userId;
+
+  const ReportScreen({
+    super.key,
+    required this.userId,
+  });
 
   @override
   State<ReportScreen> createState() => _ReportScreenState();
@@ -16,7 +22,6 @@ class ReportScreen extends StatefulWidget {
 class _ReportScreenState extends State<ReportScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  // Animal type
   final List<String> _animals = [
     'Cat',
     'Dog',
@@ -24,22 +29,22 @@ class _ReportScreenState extends State<ReportScreen> {
     'Bird',
     'Rabbit',
     'Goat',
-    'Other'
+    'Other',
   ];
+
   String? _selectedAnimal;
   final TextEditingController _otherAnimalCtrl = TextEditingController();
 
-  // Image
   File? _imageFile;
   final ImagePicker _picker = ImagePicker();
 
-  // Location
   bool _shareLocation = true;
   double? _lat;
   double? _lng;
   String? _locationLabel;
 
   bool _gettingGps = false;
+  bool _isSubmitting = false;
 
   @override
   void dispose() {
@@ -49,21 +54,32 @@ class _ReportScreenState extends State<ReportScreen> {
 
   void _showSnack(String msg) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(msg)),
+    );
   }
 
-  // ---------- Image ----------
+  // Lets the user choose an existing image and stores it for report submission.
   Future<void> _pickImageFromGallery() async {
     final XFile? file = await _picker.pickImage(source: ImageSource.gallery);
-    if (file != null) setState(() => _imageFile = File(file.path));
+    if (file != null) {
+      setState(() {
+        _imageFile = File(file.path);
+      });
+    }
   }
 
+  // Opens the camera and stores the captured image for report submission.
   Future<void> _pickImageFromCamera() async {
     final XFile? file = await _picker.pickImage(source: ImageSource.camera);
-    if (file != null) setState(() => _imageFile = File(file.path));
+    if (file != null) {
+      setState(() {
+        _imageFile = File(file.path);
+      });
+    }
   }
 
-  // ---------- Location ----------
+  // Requests GPS permission, captures the current location, and saves latitude/longitude.
   Future<void> _getCurrentLocation() async {
     setState(() => _gettingGps = true);
 
@@ -85,7 +101,9 @@ class _ReportScreenState extends State<ReportScreen> {
       }
 
       if (perm == LocationPermission.deniedForever) {
-        _showSnack('Location permission is permanently denied. Enable it in Settings.');
+        _showSnack(
+          'Location permission is permanently denied. Enable it in Settings.',
+        );
         return;
       }
 
@@ -98,17 +116,23 @@ class _ReportScreenState extends State<ReportScreen> {
         _lng = pos.longitude;
         _locationLabel = 'Captured current location';
       });
-    } catch (_) {
+    } catch (e) {
       _showSnack('Failed to get location.');
+      debugPrint('Location error: $e');
     } finally {
-      if (mounted) setState(() => _gettingGps = false);
+      if (mounted) {
+        setState(() => _gettingGps = false);
+      }
     }
   }
 
+  // Opens the map picker and saves the selected latitude/longitude.
   Future<void> _pickOnMap() async {
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => const LocationPickerScreen()),
+      MaterialPageRoute(
+        builder: (_) => const LocationPickerScreen(),
+      ),
     );
 
     if (result is LocationPickerResult) {
@@ -120,8 +144,9 @@ class _ReportScreenState extends State<ReportScreen> {
     }
   }
 
-  // ---------- Submit ----------
-  void _submit() {
+  // Validates the form and sends the citizen report to the backend API.
+  Future<void> _submit() async {
+    if (_isSubmitting) return;
     if (!_formKey.currentState!.validate()) return;
 
     if (_imageFile == null) {
@@ -134,10 +159,47 @@ class _ReportScreenState extends State<ReportScreen> {
       return;
     }
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const ThankYouScreen()),
-    );
+    final animalType = _selectedAnimal == 'Other'
+        ? _otherAnimalCtrl.text.trim()
+        : _selectedAnimal!;
+
+    setState(() => _isSubmitting = true);
+
+    try {
+      final success = await ApiService.submitReport(
+        citizenId: widget.userId,
+        animalType: animalType,
+        otherAnimalType:
+        _selectedAnimal == 'Other' ? _otherAnimalCtrl.text.trim() : null,
+        imageFile: _imageFile!,
+        latitude: _shareLocation ? _lat : null,
+        longitude: _shareLocation ? _lng : null,
+        manualLocation: !_shareLocation ? 'Manual location selected' : null,
+        locationMode: _shareLocation
+            ? (_locationLabel == 'Pinned on map' ? 'map' : 'gps')
+            : 'manual',
+      );
+
+      if (!mounted) return;
+
+      if (success) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const ThankYouScreen(),
+          ),
+        );
+      } else {
+        _showSnack('Failed to submit report. Check backend terminal.');
+      }
+    } catch (e) {
+      debugPrint('Submit error: $e');
+      _showSnack('Something went wrong while submitting.');
+    } finally {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+      }
+    }
   }
 
   @override
@@ -148,24 +210,23 @@ class _ReportScreenState extends State<ReportScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // Background
           Positioned.fill(
             child: Image.asset(
               'assets/images/bg.png',
               fit: BoxFit.cover,
             ),
           ),
-          // Dark overlay
           Positioned.fill(
-            child: Container(color: Colors.black.withOpacity(0.65)),
+            child: Container(
+              color: Colors.black.withOpacity(0.65),
+            ),
           ),
-
           SafeArea(
             child: Column(
               children: [
-                // Top bar
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   child: Row(
                     children: [
                       IconButton(
@@ -176,17 +237,22 @@ class _ReportScreenState extends State<ReportScreen> {
                         child: Text(
                           'Report Roadkill',
                           textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ),
-                      const SizedBox(width: 48), // balances back button space
+                      const SizedBox(width: 48),
                     ],
                   ),
                 ),
-
                 Expanded(
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 18,
+                      vertical: 10,
+                    ),
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 520),
                       child: Container(
@@ -210,26 +276,32 @@ class _ReportScreenState extends State<ReportScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              // Animal dropdown
                               DropdownButtonFormField<String>(
                                 value: _selectedAnimal,
                                 items: _animals
-                                    .map((a) => DropdownMenuItem(value: a, child: Text(a)))
+                                    .map(
+                                      (a) => DropdownMenuItem(
+                                    value: a,
+                                    child: Text(a),
+                                  ),
+                                )
                                     .toList(),
                                 onChanged: (v) {
                                   setState(() {
                                     _selectedAnimal = v;
-                                    if (v != 'Other') _otherAnimalCtrl.clear();
+                                    if (v != 'Other') {
+                                      _otherAnimalCtrl.clear();
+                                    }
                                   });
                                 },
                                 decoration: const InputDecoration(
                                   labelText: 'Animal Type',
                                 ),
-                                validator: (v) => (v == null) ? 'Please select animal type' : null,
+                                validator: (v) => (v == null)
+                                    ? 'Please select animal type'
+                                    : null,
                               ),
-
                               const SizedBox(height: 12),
-
                               if (showOtherField)
                                 TextFormField(
                                   controller: _otherAnimalCtrl,
@@ -244,13 +316,12 @@ class _ReportScreenState extends State<ReportScreen> {
                                     return null;
                                   },
                                 ),
-
                               const SizedBox(height: 18),
-
-                              // Photo
-                              Text('Photo', style: Theme.of(context).textTheme.titleMedium),
+                              Text(
+                                'Photo',
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
                               const SizedBox(height: 8),
-
                               Container(
                                 height: 180,
                                 decoration: BoxDecoration(
@@ -258,15 +329,18 @@ class _ReportScreenState extends State<ReportScreen> {
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: _imageFile == null
-                                    ? const Center(child: Text('No image selected'))
+                                    ? const Center(
+                                  child: Text('No image selected'),
+                                )
                                     : ClipRRect(
                                   borderRadius: BorderRadius.circular(12),
-                                  child: Image.file(_imageFile!, fit: BoxFit.cover),
+                                  child: Image.file(
+                                    _imageFile!,
+                                    fit: BoxFit.cover,
+                                  ),
                                 ),
                               ),
-
                               const SizedBox(height: 10),
-
                               Row(
                                 children: [
                                   Expanded(
@@ -286,19 +360,23 @@ class _ReportScreenState extends State<ReportScreen> {
                                   ),
                                 ],
                               ),
-
                               const SizedBox(height: 18),
-
-                              // Location section + toggle
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text('Location', style: Theme.of(context).textTheme.titleMedium),
+                                  Text(
+                                    'Location',
+                                    style:
+                                    Theme.of(context).textTheme.titleMedium,
+                                  ),
                                   Row(
                                     children: [
                                       Text(
                                         _shareLocation ? 'Share' : 'Manual',
-                                        style: TextStyle(color: cs.onSurfaceVariant),
+                                        style: TextStyle(
+                                          color: cs.onSurfaceVariant,
+                                        ),
                                       ),
                                       Switch(
                                         value: _shareLocation,
@@ -308,7 +386,8 @@ class _ReportScreenState extends State<ReportScreen> {
                                             if (!v) {
                                               _lat = null;
                                               _lng = null;
-                                              _locationLabel = 'Location tracking disabled';
+                                              _locationLabel =
+                                              'Location tracking disabled';
                                             } else {
                                               _locationLabel = null;
                                             }
@@ -319,17 +398,18 @@ class _ReportScreenState extends State<ReportScreen> {
                                   ),
                                 ],
                               ),
-
                               const SizedBox(height: 8),
-
                               if (_shareLocation) ...[
                                 ElevatedButton.icon(
-                                  onPressed: _gettingGps ? null : _getCurrentLocation,
+                                  onPressed:
+                                  _gettingGps ? null : _getCurrentLocation,
                                   icon: _gettingGps
                                       ? const SizedBox(
                                     width: 18,
                                     height: 18,
-                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
                                   )
                                       : const Icon(Icons.my_location),
                                   label: const Text('Use my current location'),
@@ -343,25 +423,38 @@ class _ReportScreenState extends State<ReportScreen> {
                               ] else ...[
                                 Text(
                                   'You chose manual mode. We will not capture GPS.',
-                                  style: TextStyle(color: cs.onSurfaceVariant),
+                                  style: TextStyle(
+                                    color: cs.onSurfaceVariant,
+                                  ),
                                 ),
                               ],
-
                               const SizedBox(height: 10),
-
                               if (_locationLabel != null)
-                                Text('Status: $_locationLabel', style: TextStyle(color: cs.onSurfaceVariant)),
+                                Text(
+                                  'Status: $_locationLabel',
+                                  style: TextStyle(
+                                    color: cs.onSurfaceVariant,
+                                  ),
+                                ),
                               if (_lat != null && _lng != null)
-                                Text('Lat: ${_lat!.toStringAsFixed(6)}, Lng: ${_lng!.toStringAsFixed(6)}'),
-
+                                Text(
+                                  'Lat: ${_lat!.toStringAsFixed(6)}, Lng: ${_lng!.toStringAsFixed(6)}',
+                                ),
                               const SizedBox(height: 22),
-
-                              // Submit
                               FilledButton(
-                                onPressed: _submit,
-                                child: const Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 12),
-                                  child: Text('Submit Report'),
+                                onPressed: _isSubmitting ? null : _submit,
+                                child: Padding(
+                                  padding:
+                                  const EdgeInsets.symmetric(vertical: 12),
+                                  child: _isSubmitting
+                                      ? const SizedBox(
+                                    width: 22,
+                                    height: 22,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                      : const Text('Submit Report'),
                                 ),
                               ),
                             ],

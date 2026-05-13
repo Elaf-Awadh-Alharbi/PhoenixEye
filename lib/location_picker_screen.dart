@@ -3,6 +3,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 
+// Carries the selected latitude and longitude back to the report form.
 class LocationPickerResult {
   final double lat;
   final double lng;
@@ -10,6 +11,7 @@ class LocationPickerResult {
   const LocationPickerResult({required this.lat, required this.lng});
 }
 
+// Displays an interactive map for choosing a report location.
 class LocationPickerScreen extends StatefulWidget {
   const LocationPickerScreen({super.key});
 
@@ -26,6 +28,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
   // Default location (Jeddah-ish). Change if you want.
   static const LatLng _defaultCenter = LatLng(21.4858, 39.1925);
 
+  // Uses device GPS to move the map and select the current location.
   Future<void> _useCurrentLocation() async {
     setState(() => _loadingGps = true);
 
@@ -75,6 +78,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
+  // Returns the selected map point to the previous screen.
   void _confirm() {
     if (_selected == null) {
       _show('Please select a point on the map.');

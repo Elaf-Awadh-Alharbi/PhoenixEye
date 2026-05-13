@@ -5,9 +5,11 @@ void main() {
   runApp(const PhoenixEyeApp());
 }
 
+// Configures the Flutter app theme and opens the splash screen as the first screen.
 class PhoenixEyeApp extends StatelessWidget {
   const PhoenixEyeApp({super.key});
 
+  // Builds the root MaterialApp and applies the shared dark visual theme.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
